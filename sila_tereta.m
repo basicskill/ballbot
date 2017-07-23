@@ -1,4 +1,7 @@
 function y = sila_tereta(t)
+    y = 2;
+
+%{
     if ((t > 6) && (t < 10))
         y = 0.2;
     elseif (t > 14)
@@ -8,4 +11,4 @@ function y = sila_tereta(t)
     end
 
     end
-
+%}

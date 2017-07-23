@@ -3,7 +3,7 @@ function y = napon_motor(t)
 %   Detailed explanation goes here
 step = 5;
 
-if (t>1)
+if (t>0)
     y = step;
 else
     y = 0;

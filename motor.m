@@ -10,8 +10,6 @@ dt = 0.01;
 
 vreme = 0.0: dt: 20.0; % vektor vremena
 
-
-
 Ktg = 1;
 A = 1;
 pW = [];
@@ -19,7 +17,7 @@ pW = [];
 for t = vreme
     Ur = A*(napon_motor(t) - W * Ktg);
     M = (Ur*Kem)/R - sila_tereta(t);
-    W = ((M/J) * exp(-(B/J) * t));
+    W = (M/J) * exp(-(B/J) * t);
     pW = [pW W];
 end
 
