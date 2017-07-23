@@ -8,23 +8,20 @@ L = 0.1;
 
 dt = 0.01;
 
-vreme = 0.0: dt: 200.0; % vektor vremena
-u1 = ones(size(vreme))*5; % vektor pobude
+vreme = 0.0: dt: 20.0; % vektor vremena
+
+
 
 Ktg = 1;
 A = 1;
-U = 5;
+pW = [];
 
-s = tf('s');
-t = sym('t');
+for t = vreme
+    Ur = A*(napon_motor(t) - W * Ktg);
+    M = (Ur*Kem)/R - sila_tereta(t);
+    W = ((M/J) * exp(-(B/J) * t));
+    pW = [pW W];
+end
 
-Mt = 0.1*sin(5*t);
-
-
-W = (U*Kem)/(R*J*s + Kme*Kem) - syms2tf(laplace(Mt))* R/(R*J*s + Kem*Kme);
-W = minreal(W);
-
-lsim(W, u1, vreme);
-
-
+plot(vreme, pW);
 
