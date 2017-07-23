@@ -10,26 +10,20 @@ L = 0.1;
 
 dt = 0.01;
 
-vreme = 0.0: dt: 20.0;
-u1 = ones(size(vreme))*5;
+vreme = 0.0: dt: 20.0; % vektor vremena
+u1 = ones(size(vreme))*5; % vektor pobude
 
-
+Ktg = 1;
+A = 1;
 U = 5;
 
 s = tf('s');
-t = sym('t');
+%t = sym('t');
 
-Mt = t;
 
-H = (Kem/R)*U - 1/s^2;
+G = 1/(s*J+B); % transfer funkcija motora
 
-G = 1/(s*J+B);
-
-GH = G*H;
-TF = GH/(1+GH);
+TF =A * (G / (1 + Ktg * G)) % TF sa povratnom spregom (samo tahogenerator)
 
 lsim(TF, u1, vreme);
 
-%step = 2.5;
-%U = zeros(1/dt);
-%U = cat(1, U, step*ones(19/dt, 1));
