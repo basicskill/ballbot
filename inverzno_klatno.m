@@ -32,7 +32,7 @@ kontroler = K * kontroler;
 
 TF = feedback(Tf_klatno, kontroler);
 figure(2)
-impulse(TF);
+step(TF);
 
 
 
