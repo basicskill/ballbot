@@ -17,35 +17,51 @@ g = 9.81;
 alpha = Iw + (mw + mb)*rw^2;
 beta = mb*rw*lb;
 gama = Ib + mb*lb^2;
+imenilac = alpha*gama - beta^2;
 
+A1 = - (alpha + beta)* beta*g / (rr*imenilac);
+A2 = alpha*beta*g / (rr*imenilac);
+B1 = (alpha + 2*beta + gama) / imenilac;
+B2 = - (alpha + beta) / imenilac;
+
+A = [0 0 1 0;
+     0 0 0 1;
+     0 A1 0 0;
+     0 A2 0 0];
+ 
+ B = [0;
+      0;
+      B1;
+      B2];
+
+tork = 5;
+
+Q = [1 0 0 0;
+     0 1 0 0;
+     0 0 10 0;
+     0 0 0 100];
+R = 0.1;
+
+K = lqr(A, B, Q, R);
 
 pltTheta = [];
 pltFi = [];
 
-izvdTheta = 0; izvd2Theta = 0; izvdFi = 0; izvd2Fi = 0;
-q = [0; 0];
-
+xPrim = zeros(4, 1);
+x = zeros(4, 1); %pocetno stanje
+u = tork;
 dt = 0.01;
 vreme = 0: dt: 10;
 
 for t = vreme
-    M = [alpha, alpha + beta*q(2);
-        alpha + beta*q(2), alpha + gama + 2*beta*q(2)];
-    C = [-beta * q(2) * izvdFi; -beta * q(2) * izvdFi];
-    G = [0; -beta * g * q(2) / rr];
-    D = [Dc * sign(izvdTheta) + Dv * izvdTheta; 0];
     
-    kl = inv(M) * ([1; 0] - D - G - C);
-    izvd2Theta = kl(1);
-    izvd2Fi = kl(2);
-    izvdTheta = izvdTheta + izvd2Theta * dt;
-    q(1) = q(1) + izvdTheta * dt;
+    xPrim = A * x + B * u;
+    x = x + xPrim * dt;
+    u = -K*x;
     
-    izvdFi = izvdFi + izvd2Fi * dt;
-    q(2) = q(2) + izvdFi * dt;
+    pltTheta = [pltTheta, x(1)];
+    pltFi = [pltFi, x(2)];
     
-    pltTheta = [pltTheta, q(1)];
-    pltFi = [pltFi, q(2)];    
 end
 
 figure(1)          
