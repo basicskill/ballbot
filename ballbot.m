@@ -1,3 +1,4 @@
+close all
 % q = [ teta, fi ]
 rw = 0.1058;
 rr = 0.006335;
@@ -34,7 +35,7 @@ A = [0 0 1 0;
       B1;
       B2];
 
-tork = 5;
+tork = 50;
 
 Q = [1 0 0 0;
      0 1 0 0;
@@ -46,28 +47,52 @@ K = lqr(A, B, Q, R);
 
 pltTheta = [];
 pltFi = [];
+idealnoFi = [];
 
-xPrim = zeros(4, 1);
-x = zeros(4, 1); %pocetno stanje
-u = tork;
+%bez suma
+dX = zeros(4, 1);
+X = [0; .1; 0; 0]; %pocetno stanje
+u = 0;
 dt = 0.01;
-vreme = 0: dt: 10;
+vreme = dt: dt: 10;
 
 for t = vreme
     
-    xPrim = A * x + B * u;
-    x = x + xPrim * dt;
-    u = -K*x;
+    dX = A * X + B * u;
+    X = X + dX * dt;
+    u = -K*X;
     
-    pltTheta = [pltTheta, x(1)];
-    pltFi = [pltFi, x(2)];
+    idealnoFi = [idealnoFi, X(2)];
+    %pltFi = [pltFi, X(2)];
+    
+end
+
+
+
+% sa sumom
+dX = zeros(4, 1);
+X = [0; .1; 0; 0]; %pocetno stanje
+u = 0;
+dt = 0.01;
+vreme = dt: dt: 10;
+
+for t = vreme
+    
+    dX = A * X + B * u;
+    X = X + dX * dt;
+    [g, a] = imu_noise(X(2), X(4), mb, g, dt);
+    X(2) = komplementarni_filter(g, a);
+    u = -K*X;
+    
+    pltTheta = [pltTheta, X(1)];
+    pltFi = [pltFi, X(2)];
     
 end
 
 figure(1)          
 plot(pltFi)
-figure(2)
-plot(pltTheta)
+hold on
+plot(idealnoFi)
 
 
 
