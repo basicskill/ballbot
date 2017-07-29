@@ -87,23 +87,29 @@ P = 0;
 
 for t = vreme
     
-    X_pred = X;
+    X_pred = [X(2); X(4)];
     
     dX = A * X + B * u;
     X = X + dX * dt;
     
     stvarnoFi = [stvarnoFi, X(2)];
     
-    [g, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);
+    if imag(X(2)) ~= 0
+        t
+    end
+        
     
-    z = [g; a];
+    [g, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
+    
+    z = [g; a; dNoiseFi];
+   
     
     [noiseX, P] = kalman_filter(A, B, Q, R, u, X_pred, P, z); 
     %noiseFi = komplementarni_filter(g, a);
     
-    pltFi = [pltFi, noiseX(2)];
+    pltFi = [pltFi, noiseX(1)];
     
-    u = -K * [X(1); noiseX(2); X(3); dNoiseFi];
+    u = -K * [X(1); noiseX(2); X(3); noiseX(2)];
     
 end
 
