@@ -32,6 +32,20 @@ function [ ugao_gyro, ugao_acc, gyro ] = imu_noise( Fi, izvdFi, m, g, dt)
     acc = m * g * cos(Fi) + acc_noise;
     
     ugao_gyro = Fi + gyro * dt;
-    ugao_acc = acos(acc/(m*g));
+    
+    ugao_acc = acc/(m*g);
+
+    if ugao_acc > 1
+        ugao_acc = 1;
+    end
+    if ugao_acc < -1 
+        ugao_acc = -1;
+    end
+    
+    ugao_acc = acos(ugao_acc);
+    
+    
+    
+    
     
 end

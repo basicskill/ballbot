@@ -1,5 +1,8 @@
 close all
 clear all
+
+%rng(12345);
+
 % q = [ teta, fi ]
 rw = 0.1058;
 rr = 0.006335;
@@ -47,14 +50,14 @@ R = 0.1;
 K = lqr(A, B, Q, R);
 
 pltTheta = [];
-pltFi = [];
-idealnoFi = [];
+senzorFi = [];
+realnoFi = [];
 
 u1 = 0; %pocetni tork
 X1 = [0; 0.1; 0; 0]; %pocetno stanje
 
 dt = 0.01;
-maxVreme = 10;
+maxVreme = 5;
 vreme = dt: dt: maxVreme;
 
 %{
@@ -82,38 +85,34 @@ end
 dX = zeros(4, 1);
 X = X1; %pocetno stanje
 u = u1;
-stvarnoFi = [];
-P = 0;
-
+realnoFi = [];
+P = [ 0.1 0;
+      0 0.1];
+gyro = [0];
+kalmanX = [0 0];
 for t = vreme
     
-    X_pred = [X(2); X(4)];
+    X_pred = [kalmanX(1); kalmanX(2)];
     
     dX = A * X + B * u;
     X = X + dX * dt;
     
-    stvarnoFi = [stvarnoFi, X(2)];
-    
-    if imag(X(2)) ~= 0
-        t
-    end
-        
-    
+    realnoFi = [realnoFi, X(2)];        
+
     [g, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
+    z = [g; a; dNoiseFi]; %ocitavanja senzora
+    gyro = [gyro, g];
     
-    z = [g; a; dNoiseFi];
-   
+    [kalmanX, P] = kalman_filter(A, B, u, X_pred, P, z); 
     
-    [noiseX, P] = kalman_filter(A, B, Q, R, u, X_pred, P, z); 
-    %noiseFi = komplementarni_filter(g, a);
+    senzorFi = [senzorFi, kalmanX(1)];
     
-    pltFi = [pltFi, noiseX(1)];
-    
-    u = -K * [X(1); noiseX(2); X(3); noiseX(2)];
+    u = -K * [X(1); kalmanX(1); X(3); kalmanX(2)];
     
 end
 
 figure(1)          
-plot(pltFi)
+plot(senzorFi, 'b')
 hold on
-plot(stvarnoFi)
+plot(realnoFi, 'r')
+%plot(gyro, 'g')
