@@ -1,15 +1,19 @@
 function [ ugao_gyro, ugao_acc, gyro ] = imu_noise( Fi, izvdFi, m, g, dt)
     
-    gyro_kw = .001; acc_kw = .005;
+    gyro_wn = 0.01 * randn(1); acc_wn = 0.02 * randn(1);
     
-    gyro_drift = 1 * dt;
+    %wn g 0.01 a0.02
+    %cb g 0.1 a 0
+    %rw g 0.05 a 0.001
+    %djeneralove konstante
+    gyro_bias = 0;
    
     k = 1;
     gyro_rwalk = rand(1);
     if (gyro_rwalk < .5) 
         k = -k; 
     end    
-    gyro_koef = .001;
+    gyro_koef = 0.05;
     gyro_rwalk = gyro_koef * k * gyro_rwalk;
     
     k = 1;
@@ -17,12 +21,12 @@ function [ ugao_gyro, ugao_acc, gyro ] = imu_noise( Fi, izvdFi, m, g, dt)
     if (acc_rwalk < .5) 
         k = -k;
     end
-    gyro_koef = .001;
+    gyro_koef = 0.001;
     acc_rwalk = gyro_koef * k * acc_rwalk;
     
     
-    gyro_noise = gyro_kw * randn(1) + gyro_drift + gyro_rwalk;
-    acc_noise = acc_kw * randn(1);
+    gyro_noise = gyro_wn  + gyro_bias + gyro_rwalk;
+    acc_noise = acc_wn + acc_rwalk;
 
     gyro = izvdFi + gyro_noise;
     acc = m * g * cos(Fi) + acc_noise;

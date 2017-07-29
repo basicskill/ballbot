@@ -1,11 +1,12 @@
 close all
+clear all
 % q = [ teta, fi ]
 rw = 0.1058;
 rr = 0.006335;
 mw = 2.44;
 Iw = 0.0174;
 lb = 0.69;
-Ib = 12.59;
+Ib = 120.59;
 %Ibyy = 12.48;
 %Ibzz = 0.66;
 mb = 51.66;
@@ -48,48 +49,65 @@ K = lqr(A, B, Q, R);
 pltTheta = [];
 pltFi = [];
 idealnoFi = [];
-u1 = 0;
 
-%bez suma
-dX = zeros(4, 1);
-X = [0; .1; 0; 0]; %pocetno stanje
-u = u1;
+u1 = 0; %pocetni tork
+X1 = [0; 0.1; 0; 0]; %pocetno stanje
+
 dt = 0.01;
 maxVreme = 10;
 vreme = dt: dt: maxVreme;
+
+%{
+%bez suma
+
+dX = zeros(4, 1);
+X = X1;
+u = u1;
+
 
 for t = vreme
     
     dX = A * X + B * u;
     X = X + dX * dt;
-    u = -K*X + tork*(t == 5);
+    u = -K*X;% + tork*(t == 5);
     
     idealnoFi = [idealnoFi, X(2)];
     %pltFi = [pltFi, X(2)];
     
 end
-
+%}
 
 
 % sa sumom
 dX = zeros(4, 1);
-X = [0; .1; 0; 0]; %pocetno stanje
+X = X1; %pocetno stanje
 u = u1;
+stvarnoFi = [];
+P = 0;
 
 for t = vreme
     
+    X_pred = X;
+    
     dX = A * X + B * u;
     X = X + dX * dt;
-    [g, a, X(4)] = imu_noise(X(2), X(4), mb, g, dt);
-    X(2) = komplementarni_filter(g, a);
-    u = -K*X + tork*(t == 5);
     
-    pltTheta = [pltTheta, X(1)];
-    pltFi = [pltFi, X(2)];
+    stvarnoFi = [stvarnoFi, X(2)];
+    
+    [g, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);
+    
+    z = [g; a];
+    
+    [noiseX, P] = kalman_filter(A, B, Q, R, u, X_pred, P, z); 
+    %noiseFi = komplementarni_filter(g, a);
+    
+    pltFi = [pltFi, noiseX(2)];
+    
+    u = -K * [X(1); noiseX(2); X(3); dNoiseFi];
     
 end
 
 figure(1)          
 plot(pltFi)
 hold on
-plot(idealnoFi)
+plot(stvarnoFi)
