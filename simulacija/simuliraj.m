@@ -57,13 +57,10 @@ function [ realnoFi, senzorFi ] = simuliraj(X1, maxVreme, dt, ...
 
         [gyro, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
         z = [a; dNoiseFi]; %ocitavanja senzora
-        %senzor = [senzor, a];
         [kalmanX, P, inov] = kalman_filter(Ad, Bd, u, kalmanX, P, z); 
-
         senzorFi = [senzorFi, kalmanX(2)];
-
         u = -K * [X(1); kalmanX(2); X(3); kalmanX(4)];
-
+        
     end
 end
 
