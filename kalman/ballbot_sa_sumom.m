@@ -55,10 +55,10 @@ pltTheta = [];
 realnoFi = [];
 
 u1 = 0; %pocetni tork
-X1 = [0; -0.1; 0; 0]; %pocetno stanje
+X1 = [0; 0.1; 0; 0]; %pocetno stanje
 
 dt = 0.01;
-maxVreme = 10;
+maxVreme = 5;
 vreme = dt: dt: maxVreme;
 
 
