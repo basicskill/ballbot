@@ -1,22 +1,14 @@
 function [ X_novo, P_novo ] = kalman_filter(A, B, u, X, P, z )
 
-    H = [1 0;
-         1 0;
-         0 1];
-    
-    B = [B(2); B(4)];
-    A = [A(2, 2), A(2, 4);
-         A(4, 2), A(4, 4)];
-    
-    %Q = [Q(2, 2), 0;
-    %     0, Q(4, 4)];
+%gyro 0.05 acc 0.5 brzina 0.8
+    H = [0 1 0 0;
+         0 0 0 1];
      
-    Q = [ 0.1 0;
-          0 1];
+    Q = diag([1e-10 1e-10 1e-10 1e-10]);
       
-    R = [10 0 0;
-         0 1 0;
-         0 0 1];
+    R = [1e+10 0;
+         0 1e+10];
+     
     %predikcija
     X_ = A*X + B*u;
     P_ = A*P*A' + Q;
@@ -29,7 +21,7 @@ function [ X_novo, P_novo ] = kalman_filter(A, B, u, X, P, z )
     Kk = P_ * H' / S;
     
     X_novo = X_ + Kk*Y;
-    P_novo = (eye(size(P_)) - Kk*H) * P_;
+    P_novo = (eye(size(P)) - Kk*H) * P_;
 
 end
 

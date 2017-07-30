@@ -38,7 +38,8 @@ A = [0 0 1 0;
       0;
       B1;
       B2];
-
+  
+  
 tork = 500;
 
 Q = [1 0 0 0;
@@ -50,7 +51,7 @@ R = 0.1;
 K = lqr(A, B, Q, R);
 
 pltTheta = [];
-senzorFi = [];
+
 realnoFi = [];
 
 u1 = 0; %pocetni tork
@@ -60,25 +61,12 @@ dt = 0.01;
 maxVreme = 5;
 vreme = dt: dt: maxVreme;
 
-%{
-%bez suma
 
-dX = zeros(4, 1);
-X = X1;
-u = u1;
+sys_ct = ss(A, B, [], []);
+temp = c2d(sys_ct, .01, 'zoh');
+Ad = temp.a; 
+Bd = temp.b;
 
-
-for t = vreme
-    
-    dX = A * X + B * u;
-    X = X + dX * dt;
-    u = -K*X;% + tork*(t == 5);
-    
-    idealnoFi = [idealnoFi, X(2)];
-    %pltFi = [pltFi, X(2)];
-    
-end
-%}
 
 
 % sa sumom
@@ -86,33 +74,35 @@ dX = zeros(4, 1);
 X = X1; %pocetno stanje
 u = u1;
 realnoFi = [];
-P = [ 0.1 0;
-      0 0.1];
-gyro = [0];
-kalmanX = [0 0];
+P = diag([.1 .1 .1 .1]);
+kalmanX = X1;
+senzor = [];
+senzorFi = [kalmanX(2)];
+plotP = [P(2,2)];
+
 for t = vreme
     
-    X_pred = [kalmanX(1); kalmanX(2)];
+    X = Ad * X + Bd * u;
     
-    dX = A * X + B * u;
-    X = X + dX * dt;
+    % X(t+1) = Ad * X(t) + Bd * u(t)
     
     realnoFi = [realnoFi, X(2)];        
 
-    [g, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
-    z = [g; a; dNoiseFi]; %ocitavanja senzora
-    gyro = [gyro, g];
+    [gyro, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
+    z = [a; dNoiseFi]; %ocitavanja senzora
+    senzor = [senzor, a];
+    [kalmanX, P] = kalman_filter(Ad, Bd, u, kalmanX, P, z); 
+    plotP = [plotP, P(2,2)];
     
-    [kalmanX, P] = kalman_filter(A, B, u, X_pred, P, z); 
+    senzorFi = [senzorFi, kalmanX(2)];
     
-    senzorFi = [senzorFi, kalmanX(1)];
-    
-    u = -K * [X(1); kalmanX(1); X(3); kalmanX(2)];
+    u = -K * [X(1); kalmanX(2); X(3); kalmanX(4)];
     
 end
 
-figure(1)          
+%figure(1)          
 plot(senzorFi, 'b')
 hold on
 plot(realnoFi, 'r')
+%figure(2)
 %plot(gyro, 'g')
