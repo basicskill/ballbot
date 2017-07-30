@@ -1,4 +1,4 @@
-function [ X_novo, P_novo ] = kalman_filter(A, B, u, X, P, z )
+function [ X_novo, P_novo, Y ] = kalman_filter(A, B, u, X, P, z )
 
 
 %gyro 0.05 acc 0.5 brzina 0.8

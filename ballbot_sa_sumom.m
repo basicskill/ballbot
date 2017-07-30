@@ -79,6 +79,7 @@ kalmanX = X1;
 senzor = [];
 senzorFi = [kalmanX(2)];
 plotP = [P(2,2)];
+inovacije = [];
 
 for t = vreme
     
@@ -91,8 +92,11 @@ for t = vreme
     [gyro, a, dNoiseFi] = imu_noise(X(2), X(4), mb, g, dt);    
     z = [a; dNoiseFi]; %ocitavanja senzora
     senzor = [senzor, a];
-    [kalmanX, P] = kalman_filter(Ad, Bd, u, kalmanX, P, z); 
+    [kalmanX, P, inov] = kalman_filter(Ad, Bd, u, kalmanX, P, z); 
     plotP = [plotP, P(2,2)];
+    
+    inovacije = [inovacije, inov(1)];
+    
     
     senzorFi = [senzorFi, kalmanX(2)];
     

@@ -1,7 +1,7 @@
 function [ ugao_gyro, ugao_acc, gyro ] = imu_noise( Fi, izvdFi, m, g, dt)
     
     gyro_wn = 0.01 * randn(1); 
-    acc_wn = 0.0002 * randn(1);
+    acc_wn = 0.002 * randn(1);
     
     %wn g 0.01 a0.02
     %cb g 0.1 a 0
