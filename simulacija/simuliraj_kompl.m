@@ -63,5 +63,3 @@ function [ realnoFi, senzorFi ] = simuliraj_kompl(X, maxVreme, dt, ...
 
     end
 end
-
-

@@ -4,7 +4,7 @@ rr = 0.006335;
 mw = 2.44;
 Iw = 0.0174;
 lb = 0.69;
-Ib = 120.59;
+%Ib = 120.59;
 
 mb = 51.66;
 Dc = 3.82;
@@ -21,14 +21,15 @@ vek_preskoka = [];
 vek_kasnjenja = [];
 vek_uspona = [];
 vreme_smirenja = [];
+trenutak_preskoka = [];
 epsilon = 0.02 * (pi/2);
 n = 50;
 t_s = 0;
+t_preskoka = 0;
 
 %moment inercije
 %{
 for moment_inercije = (Ib-100): 10: (Ib+100)
-
     %parametri = [rw, rr, mw, moment_inercije, lb, Ib, mb, g];
     [Fi, senzorFi] = simuliraj(X1, maxVreme, dt, ...
                 greska_poc_stanja, ...
@@ -37,17 +38,21 @@ for moment_inercije = (Ib-100): 10: (Ib+100)
     
 end
 %}
+
 hold on
+
 % duzina klatna
-for duzina_klatna = (lb - .5): .1: (lb + .5)
+for duzina_klatna = (lb - 0.4): .1: (lb + 0.4)
     t_10 = 0; t_50 = 0; t_90 = 0;
     brojac_smirenja = 0; t_s = 0;
+    t_preskoka = 0;
     
     %parametri = [rw, rr, mw, moment_inercije, lb, Ib, mb, g];
-    [Fi, senzorFi] = simuliraj(X1, maxVreme, dt, greska_poc_stanja, ...
-          rw, rr, mw, Iw, duzina_klatna, Ib, mb, g);
+    [Fi, senzorFi] = simuliraj_kompl(X1, maxVreme, dt, ...
+                greska_poc_stanja, ...
+                rw, rr, mw, duzina_klatna, mb, g);
     plot(dt:dt:maxVreme, Fi);
-    maxFi = max(Fi);
+    [maxFi, tmaxFi] = max(Fi);
     
     %Procetni uspona
     for i = 1: size(Fi, 2)
@@ -75,46 +80,34 @@ for duzina_klatna = (lb - .5): .1: (lb + .5)
             brojac_smirenja = 0;
         end
         
+        if (i == tmaxFi)
+            t_preskoka = i;
+        end
+        
     end
     
     
-    
-        
-    
     vek_uspona = [vek_uspona, (t_90 - t_10)*dt];
     vek_kasnjenja = [vek_kasnjenja, t_50*dt];
-    vreme_smirenja = [vreme_smirenja, t_s*dt];
+    vreme_smirenja = [vreme_smirenja, (t_s)*dt];
+    trenutak_preskoka = [trenutak_preskoka, t_preskoka*dt];
     
     preskok = (maxFi + X1(2)) / X1(2);
     vek_preskoka = [vek_preskoka, preskok];
         
 end
 
-% figure
-% stem(vek_uspona)
-% 
-% figure
-% stem(vek_kasnjenja)
-% 
-% figure
-% stem(vreme_smirenja)
-% 
-% figure
-% stem(vek_preskoka)
+figure
+stem(vek_uspona)
+ 
+figure
+stem(vek_kasnjenja)
 
+figure
+stem(vreme_smirenja)
 
+figure
+stem(vek_preskoka)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+figure
+stem(trenutak_preskoka)
