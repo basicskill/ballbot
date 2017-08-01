@@ -70,7 +70,6 @@ def init():
     ax.add_line(lajna)
     ax.add_patch(cm)
     ax.add_line(lajna_lopte)
-    ax.add_patch(patch)
 
     return lopta, lajna
 
